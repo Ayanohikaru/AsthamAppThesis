@@ -1,0 +1,20 @@
+<resources>
+    <!--Main Activity-->
+    <string name="app_name">Asthma Application</string>
+    <string name="txtTile1">Setup</string>
+    <string name="txtTile2">Sensor</string>
+    <string name="txtTile3">Asthma</string>
+    <string name="action_settings">Settings</string>
+    <!--Connection Fragment-->
+    <string name="btnChooseBand">Select Device</string>
+    <string name="btnConnection">Connect Band</string>
+    <!--Sensor Fragment-->
+    <string name="txt_sensor_title">Heart Rate Sensor</string>
+    <string name="txt_HR_title">Heart Rate</string>
+    <string name="txt_RR_title">RR interval</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+
+</resources>
