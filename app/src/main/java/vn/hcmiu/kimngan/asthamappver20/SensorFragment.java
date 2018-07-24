@@ -19,6 +19,8 @@ import com.microsoft.band.BandIOException;
 import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
 import com.microsoft.band.UserConsent;
+import com.microsoft.band.sensors.BandHeartRateEvent;
+import com.microsoft.band.sensors.BandHeartRateEventListener;
 import com.microsoft.band.sensors.BandRRIntervalEvent;
 import com.microsoft.band.sensors.BandRRIntervalEventListener;
 import com.microsoft.band.sensors.HeartRateConsentListener;
@@ -40,7 +42,17 @@ public class SensorFragment extends Fragment {
         @Override
         public void onBandRRIntervalChanged(final BandRRIntervalEvent event) {
             if (event != null) {
-                appendToUI(String.format(Locale.US, "RR Interval = %.3f s\n", event.getInterval()));
+                RR_appendToUI(String.format(Locale.US, "RR Interval = %.3f s\n", event.getInterval()));
+            }
+        }
+    };
+
+    private BandHeartRateEventListener mHeartRateEventListener = new BandHeartRateEventListener() {
+        @Override
+        public void onBandHeartRateChanged(final BandHeartRateEvent event) {
+            if (event != null) {
+                HR_appendToUI(String.format("Heart Rate = %d beats per minute\n"
+                        + "Quality = %s\n", event.getHeartRate(), event.getQuality()));
             }
         }
     };
@@ -55,23 +67,29 @@ public class SensorFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstantState) {
         super.onActivityCreated(savedInstantState);
+
         Button btn_Consent = (Button) getView().findViewById(R.id.btn_Consent);
         Button btn_Measure = (Button) getView().findViewById(R.id.btn_Measure);
         RR_value = (TextView) getView().findViewById(R.id.RR_value);
+        HR_value = (TextView) getView().findViewById(R.id.HR_value);
 
         btn_Measure.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 RR_value.setText("");
+                HR_value.setText("");
                 new RRIntervalSubscriptionTask().execute();
+                new HeartRateSubscriptionTask().execute();
             }
         });
         final WeakReference<Activity> reference = new WeakReference<Activity>(getActivity());
+        final WeakReference<Activity> reference1 = new WeakReference<Activity>(getActivity());
         btn_Consent.setOnClickListener(new View.OnClickListener() {
             @SuppressWarnings("unchecked")
             @Override
             public void onClick(View v) {
                 new HeartRateConsentTask().execute(reference);
+                new HeartRateConsentTask().execute(reference1);
             }
         });
     }
@@ -80,6 +98,7 @@ public class SensorFragment extends Fragment {
     public void onResume() {
         super.onResume();
         RR_value.setText("");
+        HR_value.setText("");
     }
 
     @Override
@@ -89,7 +108,12 @@ public class SensorFragment extends Fragment {
             try {
                 client.getSensorManager().unregisterRRIntervalEventListener(mRRIntervalEventListener);
             } catch (BandIOException e) {
-                appendToUI(e.getMessage());
+                RR_appendToUI(e.getMessage());
+            }
+            try {
+                client.getSensorManager().unregisterHeartRateEventListener(mHeartRateEventListener);
+            } catch (BandIOException e) {
+                RR_appendToUI(e.getMessage());
             }
         }
     }
@@ -116,14 +140,14 @@ public class SensorFragment extends Fragment {
                         if (client.getSensorManager().getCurrentHeartRateConsent() == UserConsent.GRANTED) {
                             client.getSensorManager().registerRRIntervalEventListener(mRRIntervalEventListener);
                         } else {
-                            appendToUI("You have not given this application consent to access heart rate data yet."
+                            RR_appendToUI("You have not given this application consent to access heart rate data yet."
                                     + " Please press the Heart Rate Consent button.\n");
                         }
                     } else {
-                        appendToUI("The RR Interval sensor is not supported with your Band version. Microsoft Band 2 is required.\n");
+                        RR_appendToUI("The RR Interval sensor is not supported with your Band version. Microsoft Band 2 is required.\n");
                     }
                 } else {
-                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                    RR_appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
                 }
             } catch (BandException e) {
                 String exceptionMessage = "";
@@ -138,15 +162,50 @@ public class SensorFragment extends Fragment {
                         exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
                         break;
                 }
-                appendToUI(exceptionMessage);
+                RR_appendToUI(exceptionMessage);
 
             } catch (Exception e) {
-                appendToUI(e.getMessage());
+                RR_appendToUI(e.getMessage());
             }
             return null;
         }
     }
 
+    private class HeartRateSubscriptionTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                if (getConnectedBandClient()) {
+                    if (client.getSensorManager().getCurrentHeartRateConsent() == UserConsent.GRANTED) {
+                        client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
+                    } else {
+                        HR_appendToUI("You have not given this application consent to access heart rate data yet."
+                                + " Please press the Heart Rate Consent button.\n");
+                    }
+                } else {
+                    HR_appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                }
+            } catch (BandException e) {
+                String exceptionMessage="";
+                switch (e.getErrorType()) {
+                    case UNSUPPORTED_SDK_VERSION_ERROR:
+                        exceptionMessage = "Microsoft Health BandService doesn't support your SDK Version. Please update to latest SDK.\n";
+                        break;
+                    case SERVICE_ERROR:
+                        exceptionMessage = "Microsoft Health BandService is not available. Please make sure Microsoft Health is installed and that you have the correct permissions.\n";
+                        break;
+                    default:
+                        exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
+                        break;
+                }
+                HR_appendToUI(exceptionMessage);
+
+            } catch (Exception e) {
+                HR_appendToUI(e.getMessage());
+            }
+            return null;
+        }
+    }
     private class HeartRateConsentTask extends AsyncTask<WeakReference<Activity>, Void, Void> {
         @Override
         protected Void doInBackground(WeakReference<Activity>... params) {
@@ -161,7 +220,7 @@ public class SensorFragment extends Fragment {
                         });
                     }
                 } else {
-                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                    HR_appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
                 }
             } catch (BandException e) {
                 String exceptionMessage = "";
@@ -176,16 +235,16 @@ public class SensorFragment extends Fragment {
                         exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
                         break;
                 }
-                appendToUI(exceptionMessage);
+                HR_appendToUI(exceptionMessage);
 
             } catch (Exception e) {
-                appendToUI(e.getMessage());
+                HR_appendToUI(e.getMessage());
             }
             return null;
         }
     }
 
-    private void appendToUI(final String string) {
+    private void RR_appendToUI(final String string) {
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -194,11 +253,20 @@ public class SensorFragment extends Fragment {
         });
     }
 
+    private void HR_appendToUI(final String string) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                HR_value.setText(string);
+            }
+        });
+    }
+
     private boolean getConnectedBandClient() throws InterruptedException, BandException {
         if (client == null) {
             BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
             if (devices.length == 0) {
-                appendToUI("Band isn't paired with your phone.\n");
+                RR_appendToUI("Band isn't paired with your phone.\n");
                 return false;
             }
             client = BandClientManager.getInstance().create(getActivity().getBaseContext(), devices[0]);
@@ -206,7 +274,7 @@ public class SensorFragment extends Fragment {
             return true;
         }
 
-        appendToUI("Band is connecting...\n");
+        RR_appendToUI("Band is connecting...\n");
         return ConnectionState.CONNECTED == client.connect().await();
     }
 }
