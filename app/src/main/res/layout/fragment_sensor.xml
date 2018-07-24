@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="112dp"
         android:text="@string/txt_HR_title"
         android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,10 +35,10 @@
         android:id="@+id/RR_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="128dp"
+        android:layout_marginTop="144dp"
         android:text="@string/txt_RR_title"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,8 +46,8 @@
         android:id="@+id/HR_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="104dp"
-        android:layout_marginTop="96dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="112dp"
         android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -56,8 +56,8 @@
         android:id="@+id/RR_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="104dp"
-        android:layout_marginTop="128dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="144dp"
         android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -66,8 +66,8 @@
         android:id="@+id/btn_Consent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="160dp"
-        android:layout_marginTop="184dp"
+        android:layout_marginStart="164dp"
+        android:layout_marginTop="204dp"
         android:text="Consent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -84,11 +84,11 @@
 
     <TextView
         android:id="@+id/txt_Access"
-        android:layout_width="52dp"
+        android:layout_width="86dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="76dp"
-        android:text="Access:"
+        android:text="Access State:"
         android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -97,7 +97,19 @@
         android:id="@+id/Access_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="76dp"
         android:text="TextView"
-        tools:layout_editor_absoluteX="99dp"
-        tools:layout_editor_absoluteY="75dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/rrSum_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="176dp"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
