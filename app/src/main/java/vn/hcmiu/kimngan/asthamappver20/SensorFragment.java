@@ -26,8 +26,16 @@ import com.microsoft.band.sensors.BandRRIntervalEvent;
 import com.microsoft.band.sensors.BandRRIntervalEventListener;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.microsoft.band.sensors.HeartRateQuality;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
+import com.parse.ParseInstallation;
 
 import java.lang.ref.WeakReference;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -47,6 +55,10 @@ public class SensorFragment extends Fragment {
     private HeartRateQuality qualityTemp;
     private List<Double> rrList = new ArrayList<>();
     private double rrSum;
+
+    private DB database;
+    private DBCollection collection;
+
 
     private BandRRIntervalEventListener mRRIntervalEventListener = new BandRRIntervalEventListener() {
         @Override
@@ -71,9 +83,11 @@ public class SensorFragment extends Fragment {
             if (event != null) {
                 Access_appendToUI(String.format("Quality = %s\n",event.getQuality()));
                 qualityTemp = event.getQuality();
+
                 if(qualityTemp == HeartRateQuality.LOCKED){
                     HR_appendToUI(String.format("Heart Rate = %d beats per minute\n",event.getHeartRate()));
                     RR_appendToUI(String.format(Locale.US, "RR Interval = %.3f s\n", rrTemp));
+
                     rrList.add(rrTemp);
                     if(rrList.size()==60){
                         rrSum = sum(rrList);
@@ -104,7 +118,11 @@ public class SensorFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstantState) {
         super.onActivityCreated(savedInstantState);
-
+//        try {
+////            setUp();
+//        } catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        }
         Button btn_Consent = (Button) getView().findViewById(R.id.btn_Consent);
         Button btn_Measure = (Button) getView().findViewById(R.id.btn_Measure);
         RR_value = (TextView) getView().findViewById(R.id.RR_value);
@@ -129,7 +147,8 @@ public class SensorFragment extends Fragment {
                 new HeartRateConsentTask().execute(reference);
             }
         });
-    }
+
+    };
 
     @Override
     public void onResume() {
@@ -290,4 +309,39 @@ public class SensorFragment extends Fragment {
         Access_appendToUI("Band is connecting...\n");
         return ConnectionState.CONNECTED == client.connect().await();
     }
+
+//    public void setUp() throws UnknownHostException {
+//        MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://test:test123@ds247061.mlab.com:47061/asthma"));
+//        database = mongoClient.getDB("asthma");
+//        collection = database.getCollection("sample");
+//
+//        BasicDBObject document = new BasicDBObject();
+//        document.put("name", "Shubham");
+//        document.put("company", "Baeldung");
+//        collection.insert(document);
+//        try {
+//            MongoClientURI uri  = new MongoClientURI("mongodb://test:test123@ds247061.mlab.com:47061/asthma");
+//            MongoClient client = new MongoClient(uri);
+//
+//            MongoDatabase db = client.getDatabase(uri.getDatabase());
+//            MongoCollection<BasicDBObject> collection = db.getCollection("salam", BasicDBObject.class);
+//
+//            BasicDBObject document = new BasicDBObject();
+//            document.put("name", "mkyong");
+//            document.put("age", 30);
+//            collection.insertOne(document);
+//
+//            MongoCursor iterator = collection.find().iterator();
+//            //System.out.println("Insert successfully");
+//            while (iterator.hasNext()) {
+//                System.out.println(iterator.next());
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    public void insertSample(){
+//
+//    }
 }

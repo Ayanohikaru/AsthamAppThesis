@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 import java.lang.ref.WeakReference;
 
@@ -16,6 +20,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Parse.initialize(this);
+        ParseInstallation.getCurrentInstallation().saveInBackground();
+
 
         mViewPager = (ViewPager) findViewById(R.id.container);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -30,5 +38,6 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(adapter);
         mViewPager.setOffscreenPageLimit(2);
         tabLayout.setupWithViewPager(mViewPager);
+
     }
 }
